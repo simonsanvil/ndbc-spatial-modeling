@@ -1,0 +1,46 @@
+black==21.5b1
+flake8>=3.7.9, <4.0
+ipython~=7.10
+isort~=5.0
+ipykernel
+kedro[pandas.CSVDataSet]<0.18.0
+kedro-telemetry~=0.1.0
+nbstripout~=0.4
+pytest-cov~=3.0
+pytest-mock>=1.7.1, <2.0
+pytest~=6.2
+wheel>=0.35, <0.37
+python-dotenv
+
+ml-collections==0.1.1
+pandas==1.3.2
+pyarrow
+numpy==1.21.2
+matplotlib==3.4.3
+plotly
+seaborn
+folium
+netCDF4
+pystan==2.19.1.1
+prophet
+termcolor
+fastprogress
+progressbar
+lxml
+dtale
+html5lib
+parallelbar==0.1.19
+osmnx
+lightgbm
+kedro-mlflow==0.8.1
+azureml-core==1.40.0
+azure-cli-core==2.35.0
+azureml-dataset-runtime
+azureml-mlflow
+
+
+#Custom libraries
+git+https://github.com/simonsanvil/pyhandy.git
+# local module
+
+-e .

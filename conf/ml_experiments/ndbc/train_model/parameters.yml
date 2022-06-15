@@ -1,0 +1,72 @@
+# parameters for the feature interpolation pipeline
+# that trains a spatial interpolation model on the extracted features
+target: "wave_height"
+model: lightgbm.LGBMRegressor
+num_jobs: 25
+
+time:
+  start: "2011-01-01"
+  end: "2022-01-01"
+
+pretrain_funcs:
+    - add_time_shifts:
+        shift_columns: ["wave_height_0","wave_height_1"]
+        shift_by: [[1,3]]
+        group_by: ["location_0","location_1"]
+    - add_window_rollings:
+        rolling_columns: ["wave_height_0","wave_height_1"]
+        rolling_windows: [[5,7]]
+        group_by: ["location_0","location_1"]
+    - drop: {"columns":["x","y"]}
+    - filter:   # filter out irrelevant identification columns
+        regex : "^((?!location_\\d$).)*$"
+    - dropna : {"how":"any"} # drop rows with missing values
+    - sort_index: {} # sort the index
+    - sort_index: {"axis": 1} # sort the columns by names
+
+model_validation:
+  log_mlflow: True
+  log_shap: True
+  shap_by_location: False
+  shap_params:
+    explainer: shap.TreeExplainer
+
+map_params:
+  zoom_start: 5
+
+mlflow_logging:
+  log_model:
+    log_feature_importances: True
+    log_sklearn_model: True
+
+model_params:
+  # best params from grid search
+  learning_rate: 0.075
+  n_estimators: 650
+  max_depth: 5
+  num_leaves: 15
+  subsample_freq: 5
+  subsample: 0.75
+  colsample_bytree: 0.75
+
+param_search:
+  n_jobs: 30
+  scoring: "rmse"
+  fit_params: {}
+  parameters_to_search:
+    max_depth: [3, 10, 15]
+    num_leaves: [7, 9, 15, 20]
+    colsample_bytree: [0.5, 0.75, 1.0]
+    subsample: [0.5, 0.75, 1.0]
+  functions_to_search:
+    filter: 
+      - regex: "^((?!location_\\d$).)*$"
+      - regex: "^((?!location_\\d|rolling$).)*$"
+    # add_time_shifts:
+    #   - shift_columns: ["wave_height_0","wave_height_1"]
+    #     shift_by: [[1,3]]
+    #     group_by: ["location_0","location_1"]
+    # add_window_rollings:
+    #   - rolling_columns: ["wave_height_0","wave_height_1"]
+    #     rolling_by: [[5,7]]
+    #     group_by: ["location_0","location_1"]

@@ -1,0 +1,21 @@
+target: wave_height
+n_jobs: 1
+eval_frac: 0.4
+epsilon: 0.1
+
+map_params:
+  folium_map:
+    zoom_start: 5
+  # marker: life-buoy
+  # prefix: fa
+
+epsilon_search:
+  n_jobs: 30
+  parameters_to_search:
+    epsilon: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+data_loading:
+  start: "2011-01-01"
+  end: "2022-01-01"
+  buoy_dataset: "data/04_feature/buoy_stdmet_data/*.parquet"
+  buoy_geo_dataset: data/03_processed/buoy_locations_geo/buoy_locations.parquet

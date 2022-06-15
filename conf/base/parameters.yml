@@ -1,0 +1,8 @@
+# Parameters for the example pipeline. Feel free to delete these once you
+# remove the example pipeline from hooks.py and the example nodes in
+# `src/pipelines/`
+run_as_prefect_flow: False
+prefect_task_runner: "DaskTaskRunner"
+prefect_flow_params:
+  name: "example-pipeline"
+num_processes: 35

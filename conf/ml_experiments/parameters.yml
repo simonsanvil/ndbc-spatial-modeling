@@ -1,0 +1,72 @@
+# parameters for the feature interpolation pipeline
+# that trains a spatial interpolation model on the extracted features
+target: "wave_height"
+model: lightgbm.LGBMRegressor
+num_jobs: 30
+
+data_loading:
+  start: "2011-01-01"
+  end: "now"
+
+feature_extraction:
+  params:
+    make_features_params:
+      k_nearest: 4
+      feature_vars: null
+      add_directions: True
+
+    preprocess_params:
+      preprocess_funcs:
+        dropna: {"how":"any"}
+    
+    postprocess_params:
+      postprocess_funcs:
+        - drop: {"columns":["x","y"]}
+        - filter:   # filter out irrelevant identification columns
+            regex : "^((?!location_\\d$).)*$"
+        - dropna : {"how":"any"} # drop rows with missing values
+        - sort_index: {} # sort the index
+        - sort_index: {"axis": 1} # sort the columns by names
+
+split_strategy:
+  method: split_slice
+  params:
+    index:
+      buoy_id: ["..."]
+      time: ["2019-01-01", "2019-01-02"]
+
+# validation_strategy:
+#   strategy: random
+#   params:
+#     random_state: 42
+#     n_splits: 3
+#     eval_locations: 2
+#     test_size: 0.2
+#     priorize_test_set: False
+#     split_on_unique: True
+  
+model_evaluation:
+  log_mlflow: True
+  log_shap: True
+  shap_by_location: True
+
+model_params:
+  objective: 'regression'
+  # best params:
+  learning_rate: 0.075
+  n_estimators: 650
+  max_depth: 5
+  num_leaves: 15
+  subsample_freq: 5
+  subsample: 0.75
+  colsample_bytree: 0.75
+
+gridsearch_params:
+  n_jobs: 1
+  verbose: 3
+  scoring: "rmse"
+  param_grid:
+    max_depth: [3, 10, 15]
+    num_leaves: [7, 9, 15, 20]
+    colsample_bytree: [0.5, 0.75, 1.0]
+    subsample: [0.5, 0.75, 1.0]

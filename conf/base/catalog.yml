@@ -1,0 +1,116 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
+
+#weather:
+#  type: spark.SparkDataSet
+#  filepath: s3a://your_bucket/data/01_raw/weather*
+#  file_format: csv
+#  credentials: dev_s3
+#  load_args:
+#    header: True
+#    inferSchema: True
+#  save_args:
+#    sep: '|'
+#    header: True
+
+# The Data Catalog supports being able to reference the same file using two different DataSet implementations
+# (transcoding), templating and a way to reuse arguments that are frequently repeated. See more here:
+# https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
+
+
+buoy_ids_dict:
+  type: json.JSONDataSet
+  filepath: references/ndbc-south_atlantic_stations.json
+
+stdmet_index_html:
+  type: text.TextDataSet
+  filepath: references/stdmet_data_index.html
+
+buoy_locations_df:
+  type: pandas.CSVDataSet
+  filepath: references/buoy_locations.csv
+
+ndbc_metadata_df:
+  type: pandas.CSVDataSet
+  filepath: data/02_interim/ndbc_metadata.csv
+
+ndbc_raw_buoy_data:
+  type: PartitionedDataSet
+  path: data/01_raw/ndbc_stdmet_buoy_data/
+  filename_suffix: .txt.gz
+  dataset:
+    type: spatial_interpolation.pipelines.noaa.utils.datasets.RawBuoyDataSet
+
+buoy_data_df:
+  type: pandas.ParquetDataSet
+  filepath: data/03_processed/buoy_data.parquet
+
+raw_buoy_data_parquets:
+  type: PartitionedDataSet
+  path: data/02_interim/ndbc_stdmet_data/
+  filename_suffix: .parquet
+  dataset:
+    type: pandas.ParquetDataSet
+  
+buoys_data:
+  type: PartitionedDataSet
+  path: data/03_processed/buoy_stdmet_data/
+  filename_suffix: .parquet
+  dataset:
+    type: pandas.ParquetDataSet
+
+buoys_geo:
+  type: spatial_interpolation.utils.kedro.GeopandasDataset
+  filepath: data/03_processed/buoy_locations_geo/buoy_locations.parquet
+  file_type: "parquet"
+
+lightgbm_model:
+  type: pickle.PickleDataSet
+  backend: joblib
+  filepath: data/06_models/lightgbm_model.pkl
+
+X_train:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/X_train.parquet
+
+y_train:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/y_train.parquet
+
+X_test:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/X_test.parquet
+
+y_test:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/y_test.parquet
+
+X_eval:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/X_eval.parquet
+
+y_eval:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/y_eval.parquet
+
+train_splits:
+  type: pickle.PickleDataSet
+  backend: pickle
+  filepath: data/04_feature/training_splits.pkl
+
+test_splits:
+  type: pickle.PickleDataSet
+  backend: pickle
+  filepath: data/04_feature/test_splits.pkl
+
+eval_splits:
+  type: pickle.PickleDataSet
+  backend: pickle
+  filepath: data/04_feature/eval_splits.pkl
+
+model:
+  type: pickle.PickleDataSet
+  backend: pickle
+  filepath: data/06_models/model.pkl

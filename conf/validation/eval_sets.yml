@@ -1,0 +1,18 @@
+# configuration parameters of the evaluation sets 
+# of each dataset
+
+ndbc: 
+  - name: set1
+    eval:
+      location_ids: ["41001", "42080", "41010","41001"]
+      time: 
+
+  - name: set2
+    eval:
+      location_ids: ["b1", "b2", "b3"]
+      time: ["2019-01-01", "2022-01-01"]
+
+  - name: set3
+    eval:
+      location_ids: ["b1", "b2", "b3"]
+      time: ["2019-01-01", "2022-01-01"]
