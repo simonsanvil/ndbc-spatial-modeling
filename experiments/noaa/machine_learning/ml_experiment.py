@@ -23,7 +23,7 @@ from spatial_interpolation.utils.modeling import (
     compute_metrics,
 )
 
-from experiments.noaa.configs import ml_experiments_conf
+from experiments.configs import ml_experiments_conf
 
 class NOAAMLTraining(MLFlowExperiment):
     """

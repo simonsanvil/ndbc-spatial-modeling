@@ -1,5 +1,5 @@
 """
-An experiment to evaluate deterministic interpolation methods on the NDBC buoys dataset.
+An experiment to evaluate kriging statistical models to make interpolation on the NDBC buoy data.
 """
 import json
 import os
@@ -19,34 +19,33 @@ from tqdm import tqdm
 from pyhandy import subplotted
 from spatial_interpolation import utils, data
 from spatial_interpolation.visualization import map_viz
-from spatial_interpolation.interpolators import ScipyInterpolator
 from spatial_interpolation.utils.experiments import MLFlowExperiment
 from spatial_interpolation.utils.modeling import compute_metrics
 from spatial_interpolation.pipelines.feature_interpolation import validation
-from experiments.configs import det_experiments_conf
+from experiments.configs import krige_experiments_conf
 from experiments.configs.evaluation import eval_sets as eval_conf
 
-class NOAADeterministicExperiment(MLFlowExperiment):
+class NOAAKrigingExperiment(MLFlowExperiment):
     """
-    An experiment to evaluate deterministic interpolation methods on the NDBC buoys dataset.
+    An experiment to evaluate kriging statistical models to make interpolation on the NDBC buoy data.
     """
-    config = det_experiments_conf
-    experiment_name = "NOAA-Deterministic-Interpolation"
-    params_to_log = ["interpolator", "target", "eval_set", "n_jobs"]
+    config = krige_experiments_conf
+    experiment_name = "NOAA-Kriging-Interpolation"
+    params_to_log = ["krige", "target", "eval_set", "n_jobs"]
 
     @property
     def description(self):
         config = self.get_config()
         desc = f"""
-        Interpolation experiment for the NOAA dataset using determinstic interpolation
-        with {config.interpolator.__name__} in the {config.eval_set} evaluation dataset.
+        Interpolation experiment for the NOAA dataset using kriging interpolation
+        with {config.krige} in the {config.eval_set} evaluation dataset.
         """.strip()
         return desc
 
     @property
     def tags(self):
         tags = [
-            ("noaa",), ("deterministic",),
+            ("noaa",), ("kriging",),
             ("config", str(self._cfg)),
         ]
         return tags
@@ -61,8 +60,9 @@ class NOAADeterministicExperiment(MLFlowExperiment):
         """
         config = self.get_config()
 
-        params_dict = json.loads(json.dumps(dict(config.get("interpolator_params")), default=str))
-        mlflow.log_params(params_dict)
+        if config.get("krige_params"):
+            params_dict = json.loads(json.dumps(dict(config.get("krige_params")), default=str))
+            mlflow.log_params(params_dict)
 
          # log evaluation set as yaml
         eval_set_config = eval_conf.ndbc[config.eval_set].copy_and_resolve_references()
@@ -79,19 +79,11 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             self.logger.info(f"Filtered data has shapes {df.shape} and {gdf.shape}")
             dataset = data.NDBCData(df, gdf)
 
-        available_time = dataset.buoys_data.index.get_level_values("time").unique()
-        time_range = pd.date_range(available_time.min(), available_time.max(), freq="H")
         train, test = dataset.split_slice(test=eval_conf.ndbc[config.eval_set].eval)
         train_df = train.join()
         test_df = test.join()
 
         target = config.target
-        time_steps = (
-            time_range
-            .to_series(name="time_step")
-            .rename_axis("time")
-            .rank(ascending=True)
-        )
         train_by_times = (
             train_df
             .reset_index()
@@ -99,7 +91,6 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             .set_index(["time", "location_id"])
             .sort_index()
             .dropna(subset=[target])
-            .join(time_steps)
         )
         test_by_times = (
             test_df
@@ -108,21 +99,13 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             .set_index(["time", "location_id"])
             .sort_index()
             .dropna(subset=[target])
-            .join(time_steps)
         )
         # get rid of times that have less than 4 data points
         available_times = train_by_times.groupby("time").count()[target]
         train_by_times = train_by_times.loc[available_times.index[available_times >= 4]]
 
-        interpolator = ScipyInterpolator(
-            config.interpolator,
-            dimensions=config.dimensions,
-            **config.interpolator_params
-        )
         train_times = train_by_times.index.get_level_values("time").unique()
         test_times = test_by_times.index.get_level_values("time").unique()
-        if config.get("seed"):
-            np.random.seed(config.seed)
         if config.get("eval_frac",1) < 1:
             self.logger.info(f"A random subset of {config.eval_frac*100}% of the test data will be used for evaluation")
             test_times = test_times.to_series().sample(frac=config.eval_frac)
@@ -136,16 +119,18 @@ class NOAADeterministicExperiment(MLFlowExperiment):
         mlflow.log_param("prop_test_obs_by_time", len(test_times)/test_by_times.shape[0])
         mlflow.log_param("prop_train_obs_by_time", len(train_times)/train_by_times.shape[0])
 
-        def fit_evaluate_interpolator_on_time(time, **kwargs):
+        krige = config.krige
+        dims = config.dimensions
+        def fit_evaluate_krige_on_time(time, **kwargs):
             """
             Fit a model on all the points at the time given
             and return the result of evaluating the model on the test
             set.
             """
-            if time not in train_times or len(train_by_times.loc[time])<2:
+            if time not in train_times or len(train_by_times.loc[time])<=2:
                 return
-            interpolator.fit(train_by_times.loc[time],y=target)
-            pred = interpolator.predict(test_by_times.loc[time])
+            krige.fit(train_by_times.loc[time,dims],y=train_by_times.loc[time,target])
+            pred = krige.predict(test_by_times.loc[time,dims])
             return pd.DataFrame({target:pred},index=test_by_times.loc[[time]].index)
 
         eval_start = time.time()
@@ -154,17 +139,13 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             # divide the test times into chunks
             test_times_chunks = np.array_split(test_times, config.n_jobs)
             # run the evaluation in parallel
-            with utils.tqdm_joblib(tqdm(desc="computing deterministic interpolations...",total=len(test_times_chunks))):
+            with utils.tqdm_joblib(tqdm(desc="computing kriging interpolations...",total=len(test_times_chunks))):
                 pred_lsts = Parallel(n_jobs=config.n_jobs)(
-                    delayed(lambda chunk: [fit_evaluate_interpolator_on_time(time) for time in tqdm(chunk)])(c) for c in test_times_chunks
+                    delayed(lambda chunk: [fit_evaluate_krige_on_time(time) for time in tqdm(chunk)])(c) for c in test_times_chunks
                 )
             preds = [p for l in pred_lsts for p in l]
         else:
-            preds = [
-                fit_evaluate_interpolator_on_time(time) 
-                for time in  
-                tqdm(test_times, desc="fitting interpolator at eval times...")
-            ]
+            preds = [fit_evaluate_krige_on_time(time) for time in  tqdm(test_times, desc="fitting krigging at eval times...")]
         mlflow.log_metric("time_to_eval", time.time() - eval_start)
 
         # contatenate predictions

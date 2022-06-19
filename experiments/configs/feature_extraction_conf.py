@@ -4,7 +4,7 @@ for each train-eval split of the data that is used to train
 the machine learning models.
 """
 from spatial_interpolation.utils.experiments import conf
-from experiments.evaluation import eval_sets
+from experiments.configs.evaluation import eval_sets
 
 config = conf.config_dict.ConfigDict()
 base_config = conf.Config.from_yaml("conf/ml_experiments/ndbc/feature_extraction/parameters.yml")
@@ -28,9 +28,9 @@ for set_name,val_set in eval_sets["ndbc"].items():
 
     config[val_set.name] = set_config_dict
 
-config["set5"] = config["set4"].copy_and_resolve_references()
-config.set5.output.eval_dir = "data/05_model_input/ml/noaa/set5/eval/"
-config.set5.output.train_dir = "data/05_model_input/ml/noaa/set5/train/"
+# config["set5"] = config["set4"].copy_and_resolve_references()
+# config.set5.output.eval_dir = "data/05_model_input/ml/noaa/set5/eval/"
+# config.set5.output.train_dir = "data/05_model_input/ml/noaa/set5/train/"
 
 def get_config(as_conf=False):
     if as_conf:

@@ -15,7 +15,7 @@ from spatial_interpolation.utils.experiments import Experiment
 from spatial_interpolation.pipelines.feature_interpolation import feature_extraction
 from spatial_interpolation import features, data, utils
 
-from experiments.noaa.configs import feature_extraction_conf
+from experiments.configs import feature_extraction_conf
 
 class FeatureExtractionExperiment(Experiment):
     """
@@ -32,22 +32,6 @@ class FeatureExtractionExperiment(Experiment):
         config = self.get_config()
         self.logger.info("Loading data...")
         dataset = self.get_data()
-
-        if config.get("area"):
-            self.logger.info(f"Filtering data on area {config.area}")
-            df, gdf = dataset.buoys_data, dataset.buoys_geo
-            locations_within_area = gdf.loc[gdf.within(config.area)].index.get_level_values("buoy_id").unique()
-            df = df.loc[df.index.get_level_values("buoy_id").isin(locations_within_area)]
-            gdf = gdf.loc[idx[:, locations_within_area],:]
-            self.logger.info(f"Filtered data has shapes {df.shape} and {gdf.shape}")
-            dataset = NDBCData(df, gdf)
-        if config.get("year"):
-            self.logger.info(f"Filtering data on year {config.year}")
-            df, gdf = dataset.buoys_data, dataset.buoys_geo
-            time_index_year = df.index.get_level_values("time").year
-            df, gdf = df.loc[time_index_year == config.year], gdf.loc[[config.year]]
-            self.logger.info(f"Filtered data has shapes {df.shape} and {gdf.shape}")
-            dataset = NDBCData(df, gdf)
 
         train, test = dataset.split_eval(**config.split_strategy)
         train_pipe = feature_extraction.NDBCFeatureExtractor(**config.feature_extraction)
@@ -130,7 +114,23 @@ class FeatureExtractionExperiment(Experiment):
             return self._loaded_data
         config = self.get_config()
         dataloader = data.NDBCDataLoader(**config.data_loading)
-        return dataloader.load_data()  
+        dataset = dataloader.load_data()
+        if config.get("area"):
+            self.logger.info(f"Filtering data on area {config.area}")
+            df, gdf = dataset.buoys_data, dataset.buoys_geo
+            locations_within_area = gdf.loc[gdf.within(config.area)].index.get_level_values("buoy_id").unique()
+            df = df.loc[df.index.get_level_values("buoy_id").isin(locations_within_area)]
+            gdf = gdf.loc[idx[:, locations_within_area],:]
+            self.logger.info(f"Filtered data has shapes {df.shape} and {gdf.shape}")
+            dataset = NDBCData(df, gdf)
+        if config.get("year"):
+            self.logger.info(f"Filtering data on year {config.year}")
+            df, gdf = dataset.buoys_data, dataset.buoys_geo
+            time_index_year = df.index.get_level_values("time").year
+            df, gdf = df.loc[time_index_year == config.year], gdf.loc[[config.year]]
+            self.logger.info(f"Filtered data has shapes {df.shape} and {gdf.shape}")
+            dataset = NDBCData(df, gdf)
+        return dataset
     
     def save_features(self, features_df, fpath):
         """
