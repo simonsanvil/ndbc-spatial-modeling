@@ -75,8 +75,8 @@ def evaluate_model(
     metrics_by_station_train = make_metrics_by_group(preds_df[preds_df.set=="train"], "location_id")
     metrics_by_station_eval = make_metrics_by_group(preds_df[preds_df.set=="eval"], "location_id")
     logging.info("\n"+str(metrics_by_station))
-    log_metric_by_time_plot(preds_df, "eval", metric="r2")
-    log_metric_by_time_plot(preds_df, "eval", metric="rmse")
+    log_metric_by_time_plot(preds_df, set_name="eval", metric="r2")
+    log_metric_by_time_plot(preds_df, set_name="eval", metric="rmse")
 
     if log_shap:
         logging.info("Computing SHAP values...")

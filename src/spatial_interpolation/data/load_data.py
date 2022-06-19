@@ -4,12 +4,13 @@ Load data from azureml
 
 import logging
 import os
-from typing import Tuple, List
+from typing import Iterable, Tuple, List
 from functools import lru_cache
 
 import pandas as pd
 import geopandas as gpd
 from pandas import IndexSlice as idx
+from shapely import geometry
 
 from spatial_interpolation.utils import parse_start_end
 
@@ -111,7 +112,7 @@ def load_buoys_geo(dataset_name:str=None, from_azure:bool=False, **kwargs) -> gp
     return buoys_geo
     
 
-def load_world_borders(dataset_name:str=None,preprocess:bool=True,from_azure:bool=False,**kwargs) -> gpd.GeoDataFrame:
+def load_world_borders(dataset_name:str=None,preprocess:bool=True,from_azure:bool=False,boundaries:Tuple=None,**kwargs) -> gpd.GeoDataFrame:
     """
     Load the [World Borders Dataset](https://thematicmapping.org/downloads/world_borders.php) as sourced from Bjorn Sandvik's [thematicmapping.org](https://thematicmapping.org)
     
@@ -168,6 +169,10 @@ def load_world_borders(dataset_name:str=None,preprocess:bool=True,from_azure:boo
             .rename(columns={"NAME": "country_name", "ISO2": "code"})
             .set_index(["code"])
         )
+    if boundaries:
+        if isinstance(boundaries, Iterable):
+            boundaries = geometry.box(*boundaries)  
+        world_borders_gdf = world_borders_gdf.loc[world_borders_gdf.overlaps(boundaries)]
     return world_borders_gdf
 
 def load_ml_dataset(dataset_name:str, as_pandas:bool=True, is_geo=False, time_period:Tuple[str,str]=None, workspace=None, auth_method:str=None)->pd.DataFrame:

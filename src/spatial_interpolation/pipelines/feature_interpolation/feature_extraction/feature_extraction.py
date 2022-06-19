@@ -8,7 +8,10 @@ import tqdm
 import pandas as pd
 import numpy as np
 import geopandas as gpd
+from shapely import geometry
 from pandas import IndexSlice as idx
+
+from spatial_interpolation import data
 
 warnings.simplefilter("ignore", UserWarning) 
 
@@ -21,6 +24,7 @@ def make_features(
     feature_vars: List[str] = None,
     add_directions: bool = True,
     crs:Union[int,str,dict]=4326,
+    add_distance_to_shore: bool = True,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -71,6 +75,11 @@ def make_features(
     if "time" in points_gdf.index.names:
         points_gdf_proj = points_gdf_proj.reset_index(level="time",drop=True)
         points_gdf_proj = points_gdf_proj[~points_gdf_proj.index.duplicated(keep='first')]
+    if add_distance_to_shore:
+        df_countries = data.load_world_borders()
+        bounds = kwargs.get("map_bounds", points_gdf.total_bounds) 
+        countries_geom = df_countries[df_countries.overlaps(geometry.box(*bounds))].unary_union
+        points_gdf =  points_gdf.assign(distance_to_shore = lambda df: df.geometry.distance(countries_geom).values)
     # pre-compute the distances to get the k nearest neighbors
     point_dists_df = points_gdf_proj.geometry.apply(buoys_gdf_proj.distance)
     # Create the features at each available timestamp
