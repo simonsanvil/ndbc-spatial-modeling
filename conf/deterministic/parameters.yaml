@@ -1,6 +1,7 @@
 target: wave_height
 n_jobs: 1
-eval_frac: 0.4
+eval_frac: 0.1
+seed: 42
 epsilon: 0.1
 
 map_params:

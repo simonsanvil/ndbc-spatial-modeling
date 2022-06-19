@@ -6,7 +6,7 @@ num_jobs: 25
 
 data_loading:
   start: "2011-01-01"
-  end: "2022-01-01"
+  end: "2011-03-01"
   buoy_dataset: "data/04_feature/buoy_stdmet_data/*.parquet"
   buoy_geo_dataset: data/03_processed/buoy_locations_geo/buoy_locations.parquet
 
@@ -17,6 +17,7 @@ feature_extraction:
     feature_vars: ["wave_height", "wind_speed"]
     add_directions: True
     ground_truth: wave_height
+    map_bounds: [-98.251934,12.282308,-45,35.55]
 
   preprocess_params:
     buoy_data_funcs:
