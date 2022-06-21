@@ -132,8 +132,9 @@ def make_features(
         [f"{var}_{i%k_nearest}" for i in range(k_nearest) for var in feature_vars]
     )
     # create the dataframe
+    gdf_cols = ["geometry", "distance_to_shore"] if add_distance_to_shore else ["geometry"]
     features_df = (
-        points_gdf[["geometry"]]
+        points_gdf[gdf_cols]
         .assign(
             x=lambda df: df.geometry.apply(lambda g: g.x).astype("float"),
             y=lambda df: df.geometry.apply(lambda g: g.y).astype("float"),

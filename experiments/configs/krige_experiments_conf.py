@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 BaseConfig = conf.Config.from_yaml("conf/kriging/parameters.yaml", as_base_cls=True)
 config = conf.config_dict.ConfigDict()
-
+# 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
 @conf.as_config_dict
 class ok_linear(BaseConfig):
     """

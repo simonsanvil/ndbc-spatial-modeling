@@ -43,21 +43,26 @@ model_params:
   # best params from grid search
   learning_rate: 0.075
   n_estimators: 650
-  max_depth: 5
+  max_depth: 10
   num_leaves: 15
-  subsample_freq: 5
+  subsample_freq: 30
   subsample: 0.75
-  colsample_bytree: 0.75
+  colsample_bytree: 0.8
+
+parameters_to_search:
+    learning_rate: [0.01, 0.05, 0.075]
+    n_estimators: [750]
 
 param_search:
   n_jobs: 30
   scoring: "rmse"
   fit_params: {}
   parameters_to_search:
-    max_depth: [3, 10, 15]
-    num_leaves: [7, 9, 15, 20]
-    colsample_bytree: [0.5, 0.75, 1.0]
-    subsample: [0.5, 0.75, 1.0]
+    learning_rate: [0.01, 0.05, 0.075]
+    n_estimators: [750]
+    # subsample_freq: [30, 50, 100]
+    # colsample_bytree: [0.75, 1.0]
+    # subsample: [0.5, 0.75, 1.0]
   functions_to_search:
     filter: 
       - regex: "^((?!location_\\d$).)*$"

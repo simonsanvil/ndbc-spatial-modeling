@@ -101,3 +101,33 @@ def infer_regression_krigging(model, interpolator, coords, X, y, min_points=4):
     interpolator.fit(coords.values, y=y-reg_pred)
     pred = reg_pred + interpolator.predict(coords.values)
     return pred.ravel()
+
+def search_params(experiment):
+    from sklearn.model_selection import RandomizedSearchCV
+    config = experiment.get_config()
+
+    train_df = pd.concat(
+        [pd.read_parquet(f"{config.input.train_dir}/{year}.parquet") for year in range(2011,2022)],
+        axis=0).sort_index()
+    test_df = pd.concat(
+        [pd.read_parquet(f"{config.input.eval_dir}/{year}.parquet") for year in range(2011,2022)],
+        axis=0).sort_index()
+    X_train = train_df.drop(columns=[config.target]).copy()
+    y_train = train_df[config.target]
+    X_eval = test_df.drop(columns=[config.target]).copy()
+    y_eval = test_df[config.target]
+
+    X_train, X_eval = tweak_features(
+        config.pretrain_funcs,
+        X_train, X_eval
+    )
+    y_train = y_train.loc[X_train.index]
+    y_eval = y_eval.loc[X_eval.index]
+
+    target = config.target
+    mod = config.model()
+
+    parameters_to_search = config.parameters_to_search.to_dict() 
+    random = RandomizedSearchCV(estimator = mod, param_distributions = parameters_to_search, n_iter = 80, cv = 2, verbose=2, random_state=42, n_jobs = 35)
+    random.fit(X_train, y_train.values)
+    return random

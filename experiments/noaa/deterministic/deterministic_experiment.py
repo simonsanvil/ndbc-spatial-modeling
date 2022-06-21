@@ -119,6 +119,9 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             dimensions=config.dimensions,
             **config.interpolator_params
         )
+        is_temporal = "time" in interpolator.dim_cols or "time_step" in interpolator.dim_cols
+        self.logger.info(f"Interpolator is temporal?: {is_temporal}")
+        delta = pd.Timedelta(config.temp_interpolation.delta)
         train_times = train_by_times.index.get_level_values("time").unique()
         test_times = test_by_times.index.get_level_values("time").unique()
         if config.get("seed"):
@@ -135,7 +138,7 @@ class NOAADeterministicExperiment(MLFlowExperiment):
         mlflow.log_param("num_train_times", len(train_times))
         mlflow.log_param("prop_test_obs_by_time", len(test_times)/test_by_times.shape[0])
         mlflow.log_param("prop_train_obs_by_time", len(train_times)/train_by_times.shape[0])
-
+    
         def fit_evaluate_interpolator_on_time(time, **kwargs):
             """
             Fit a model on all the points at the time given
@@ -144,8 +147,18 @@ class NOAADeterministicExperiment(MLFlowExperiment):
             """
             if time not in train_times or len(train_by_times.loc[time])<2:
                 return
-            interpolator.fit(train_by_times.loc[time],y=target)
-            pred = interpolator.predict(test_by_times.loc[time])
+            if is_temporal:
+                try:
+                    interpolator.fit(train_by_times.loc[(time-delta):time],y=target)
+                    pred = interpolator.predict(test_by_times.loc[time])
+                except Exception as e:
+                    self.logger.warning(f"Failed to fit {interpolator} on time {time} with data {train_by_times.loc[(time-delta):time]}")
+                    self.logger.warning(f"Exception: {e}")
+                    raise e
+            else:
+                interpolator.fit(train_by_times.loc[time],y=target)
+                pred = interpolator.predict(test_by_times.loc[time])
+                # return
             return pd.DataFrame({target:pred},index=test_by_times.loc[[time]].index)
 
         eval_start = time.time()

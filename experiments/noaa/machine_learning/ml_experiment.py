@@ -116,7 +116,7 @@ class NOAAMLTraining(MLFlowExperiment):
         else:
             mod_cls = config.model if not isinstance(config.model,str) else utils.get_object_from_str(config.model)
             mod = mod_cls(**config.model_params)
-            fit_params = config.get("fit_params",{  }).to_dict()
+            fit_params = config.get("fit_params",{}).to_dict()
             if fit_params.get("eval_set"):
                 fit_params["eval_set"] = [(X_eval, y_eval)]
             mod.fit(X_train, y_train, **fit_params)

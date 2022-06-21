@@ -4,6 +4,11 @@ eval_frac: 0.1
 seed: 42
 epsilon: 0.1
 
+temp_interpolation:
+    delta: 1D
+
+interpolator_params: {}
+
 map_params:
   folium_map:
     zoom_start: 5
