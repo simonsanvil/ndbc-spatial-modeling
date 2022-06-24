@@ -3,7 +3,7 @@
 
 An empirical study and comparison of Deterministic, Statistical, and ML Algorithms for the Spatial Interpolation of significant wave height values collected by buoy and sea monitoring stations  managed by the United States' [National Data Buoy Center](https://www.ndbc.noaa.gov/) (NDBC) located near costs of the Southern Atlantic regions of the United States, including those on the Gulf of Mexico and parts of the Caribbean.
 
-![ML Spatial Interpolation](/reports/figures/mltraining_interpolations_various_partial.png)
+![ML Spatial Interpolation](/reports/figures/gbm_interpolation_area3.png)
 
 ## Techniques Studied:
 
