@@ -26,7 +26,7 @@ pretrain_funcs:
 
 model_validation:
   log_mlflow: True
-  log_shap: True
+  log_shap: False
   shap_by_location: False
   shap_params:
     explainer: shap.TreeExplainer
@@ -37,7 +37,7 @@ map_params:
 mlflow_logging:
   log_model:
     log_feature_importances: True
-    log_sklearn_model: True
+    log_sklearn_model: False
 
 model_params:
   # best params from grid search
@@ -75,3 +75,23 @@ param_search:
     #   - rolling_columns: ["wave_height_0","wave_height_1"]
     #     rolling_by: [[5,7]]
     #     group_by: ["location_0","location_1"]
+  
+feature_extraction:
+  make_features_params:
+    k_nearest: 4
+    feature_vars: ["wave_height", "wind_speed", "wind_direction"]
+    add_directions: True
+    ground_truth: wave_height
+    map_bounds: [-98.251934,12.282308,-45,35.55]
+
+  preprocess_params:
+    buoy_data_funcs:
+      - rename_axis: [["location_id","time"]]
+      - dropna: {"how":"any", "subset":["wave_height"]}
+    buoy_geo_funcs:
+      - rename_axis: [["year","location_id"]]
+      - dropna: {"how":"any"}
+  
+  postprocess_params:
+    - dropna : {"how":"any"} # drop rows with missing values
+    - sort_index: {} # sort the index
