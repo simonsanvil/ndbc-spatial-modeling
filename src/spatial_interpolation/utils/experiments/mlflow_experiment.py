@@ -36,6 +36,9 @@ class MLFlowExperiment(Experiment):
             return self._experiment_name
         config = self.get_config()
         return config.get("experiment_name") or os.environ.get("MLFLOW_EXPERIMENT_NAME", self.__class__.__name__)
+    
+    def get_mlflow_experiment(self):
+        return mlflow.get_experiment_by_name(self.name)
         
     def pre_run(self):
         super().pre_run()

@@ -35,7 +35,7 @@ def fit_estimator_with_params(estimator,X,y,X_eval,y_eval, params, fit_params):
 def compute_metrics(true, pred,*funcs):
     metrics_dict = dict(
         rmse=mean_squared_error(true, pred, squared=False),
-        # mae=mean_absolute_error(true, pred),
+        mae=mean_absolute_error(true, pred),
         r2=r2_score(true, pred),
     )
     for func in funcs:

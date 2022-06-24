@@ -25,6 +25,7 @@ def make_features(
     add_directions: bool = True,
     crs:Union[int,str,dict]=4326,
     add_distance_to_shore: bool = True,
+    inference=False,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -68,7 +69,10 @@ def make_features(
     feature_vars = feature_vars or buoy_df.columns.tolist()
     buoy_df = buoy_df.loc[:,feature_vars]
     # get the index of each point to interpolate
-    point_ids = points_gdf.index.get_level_values(0).unique()
+    if inference:
+        point_ids = points_gdf.index.get_level_values(0).unique()
+    else:
+        point_ids = buoys_df.index.get_level_values(0).unique()
     # project the geometries to the same crs
     buoys_gdf_proj = buoys_gdf.to_crs(crs)
     points_gdf_proj = points_gdf[["geometry"]].to_crs(crs)
@@ -97,7 +101,7 @@ def make_features(
             continue
         # Make features for this timestamp at each available station location
         for point_id in point_ids:
-            if (point_id not in available_buoys):
+            if (point_id not in available_buoys and not inference):
                 # print(f"No data for point location {point_id} at timestamp {timestamp}")
                 continue
             try:
@@ -119,7 +123,6 @@ def make_features(
                 logging.info(f"Error at {timestamp} for point location {point_id}:",err)
                 continue
             point_features.append(features_at_point)
-
     # Make the names of the features that have been created
     feature_names = (
         # name of index
@@ -147,7 +150,7 @@ def make_features(
         .sort_index()
         .dropna(how="all",subset=[f"location_dist_{i}" for i in range(k_nearest)])
     )
-    if ground_truth is not None:
+    if ground_truth is not None and not inference:
         if isinstance(ground_truth,str):
             ground_truth = points_gdf[ground_truth]
         # Add the ground truth
@@ -183,6 +186,8 @@ def add_directions_of_nearest(
         nearest_degrees_df = pd.DataFrame(columns=newcols)
     else:
         nearest_degrees_df.columns = newcols
+    print("Concatenating degrees to nearest features..")
+    print("nearest_degrees_df has shape:",nearest_degrees_df.shape)
     return pd.concat([features_df,nearest_degrees_df],axis=1)
 
 def extract_degrees_of_nearest(df,gdf,ind_cols, proj_crs="epsg:4269"):

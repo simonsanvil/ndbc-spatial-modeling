@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from spatial_interpolation.data import load_world_borders
 
 def plot_interpolation(
@@ -11,9 +12,14 @@ def plot_interpolation(
     bbox=None,
     title=None,
     radius=0.1,
-    cmap=plt.cm.viridis,
     zmin=None,
-    zmax=None
+    zmax=None,
+    ax=None,
+    colorbar=True,
+    map_args:dict=None,
+    latlon=False,
+    dim_cols=None,
+    **kwargs
     ):
     """
     Plots the interpolation of the data as a heatmap and the data points
@@ -26,25 +32,43 @@ def plot_interpolation(
     if df_countries is None:
         df_countries = load_world_borders()
     
-    fig, ax = plt.subplots(1,1,figsize=(10,10))
+    if ax is None:
+        fig, ax = plt.subplots(1,1,figsize=(10,10))
+    else:
+        fig = ax.get_figure()
 
     # create grid of points to interpolate
     X = np.linspace(xmin,xmax,num_points)
     Y = np.linspace(ymin,ymax,num_points)
-    X,Y = np.meshgrid(X,Y)
+    if latlon:
+        X,Y = np.meshgrid(Y,X)
+    else:
+        X,Y = np.meshgrid(X,Y)
     # interpolate the grid
-    Z = interpolator(X,Y)
+    if dim_cols:
+        df = pd.DataFrame(dict(zip(dim_cols,[x.ravel() for x in [X,Y]])))
+        Z = interpolator(df)
+    else:
+        Z = interpolator(X,Y)
     Z = Z.reshape(X.shape)
     if zmin is None:
         zmin = min(z_test.min(),Z[~np.isnan(Z)].min())
     if zmax is None:
         zmax = max(z_test.max(),Z[~np.isnan(Z)].max())
+    zmin = kwargs.get("vmin",zmin)
+    zmax = kwargs.get("vmax",zmax)
     # plot a contour of countries to add to the map
-    ax = df_countries.plot(ax=ax,zorder=1)
+    map_args_default = dict(color=None, edgecolor="black")
+    map_args_default.update(map_args or {})
+    ax = df_countries.plot(ax=ax,zorder=1, **map_args_default)
     ax.set_xlim(xmin,xmax); ax.set_ylim(ymin,ymax)
     # plot the interpolation as a heatmap
-    CS = ax.contourf(X,Y,Z,cmap=cmap,zorder=0, vmin=zmin, vmax=zmax)
-    fig.colorbar(CS)
+    if latlon:
+        CS = ax.contourf(Y,X,Z,zorder=0, **kwargs)
+    else:
+        CS = ax.contourf(X,Y,Z,zorder=0, **kwargs)
+    if colorbar:
+        fig.colorbar(CS, ax=ax)
     # show the training points
     ax.scatter(x,y,marker="o",s=5,zorder=10, c="black", vmin=zmin, vmax=zmax)
     # show the test points
@@ -58,4 +82,4 @@ def plot_interpolation(
         title = f"{interpolator.__class__.__name__} interpolation"
     # buoys_gdf.plot(ax=ax,color='black',zorder=2)
     ax.set(title=title,xlabel="longitude",ylabel="latitude");
-    return CS
+    return ax, CS
