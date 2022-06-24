@@ -60,6 +60,8 @@ class NOAADeterministicExperiment(MLFlowExperiment):
         Run the experiment.
         """
         config = self.get_config()
+        if config.get("seed"):
+            np.random.seed(config.seed)
 
         params_dict = json.loads(json.dumps(dict(config.get("interpolator_params")), default=str))
         mlflow.log_params(params_dict)
@@ -124,8 +126,7 @@ class NOAADeterministicExperiment(MLFlowExperiment):
         delta = pd.Timedelta(config.temp_interpolation.delta)
         train_times = train_by_times.index.get_level_values("time").unique()
         test_times = test_by_times.index.get_level_values("time").unique()
-        if config.get("seed"):
-            np.random.seed(config.seed)
+        
         if config.get("eval_frac",1) < 1:
             self.logger.info(f"A random subset of {config.eval_frac*100}% of the test data will be used for evaluation")
             test_times = test_times.to_series().sample(frac=config.eval_frac)

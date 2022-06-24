@@ -8,6 +8,7 @@ __registered_experiments__ = [
     noaa_experiments.NOAAMLTraining,
     noaa_experiments.NOAADeterministicExperiment,
     noaa_experiments.NOAAKrigingExperiment,
+    noaa_experiments.NOAARegressionKrigingExperiment,
 ]
 
 snake_case_pattern_1 = re.compile('(.)([A-Z][a-z]+)')

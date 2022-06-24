@@ -30,6 +30,9 @@ class FeatureExtractionExperiment(Experiment):
         Run the experiment.
         """
         config = self.get_config()
+        if config.get("seed"):
+            np.random.seed(config.seed)
+            
         self.logger.info("Loading data...")
         dataset = self.get_data()
 

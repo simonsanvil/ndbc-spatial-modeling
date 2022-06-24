@@ -48,9 +48,9 @@ class rbf_interpolation(BaseConfig):
     interpolator:object = interpolate.RBFInterpolator
     dimensions = [["longitude","latitude"]]
     interpolator_params = dict(
-        epsilon=1.0, # placeholder for now
+        epsilon=0.5, # placeholder for now
         kernel="gaussian", # placeholder for now
-        max_neighbors=100,
+        # max_neighbors=100,
     )
 
 

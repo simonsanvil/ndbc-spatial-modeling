@@ -1,3 +1,4 @@
 from .kriging_experiment import NOAAKrigingExperiment
 from .machine_learning import FeatureExtractionExperiment, NOAAMLTraining
 from .deterministic import NOAADeterministicExperiment
+from .kriging.rk_experiment import NOAARegressionKrigingExperiment
