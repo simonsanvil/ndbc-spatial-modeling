@@ -17,7 +17,7 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 - The experimental study was conducted on a **large** dataset consisting of hourly wave and meteorological measurements on the 2010-2022 period collected by buoys moored in the Mid Atlantic near the south-East coast of the continental United States.
 - Data was downloaded directly from the [historical standard meteorological archive of the NDBC](https://www.ndbc.noaa.gov/data/historical/). The locations of each of the [targeted buoys](/references/ndbc-south_atlantic_stations.json) was obtained by scraping the webpages that lists their individual information (e.g: https://www.ndbc.noaa.gov/station_page.php?station=44008).
 
-| <img src="./reports/figures/buoy_ts.png" alt="Available Buoys per Set" width="100%" style="background-color: #fafafa;"> | 
+| <img src="./reports/figures/buoy_ts.jpg" alt="Available Buoys per Set" width="100%" style="background-color: #fafafa;"> | 
 | :----: |
 |Timeseries of wave height measurements from buoy #42019 |
 
@@ -26,7 +26,7 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 <!-- ![](/reports/figures/available_buoys_per_set.png) -->
 
-| <img src="./reports/figures/ndbc_partial_set2.png" alt="Available Buoys per Set" width="100%" style="background-color: white;"> |
+| <img src="./reports/figures/ndbc_partial_set2.jpg" alt="Available Buoys per Set" width="100%" style="background-color: white;"> |
 | :----: |
 |Test subsets evaluated in this area. Inside red circles are the buoys that were not available in the training set of each period mentioned.|
 
@@ -42,8 +42,9 @@ The results of the study favour the use of ML algorithms over the use of other m
 These methods are able to achieve similar error rates to other algorithms sets that test interpolative tasks (sets A,B,C) but shine on more difficult that evaluate on points that would require extrapolation outside the convex hull of the data (sets D,E,F). 
 
 
-![Results metrics](/reports/figures/eval_metrics.png)
+<img src="./reports/figures/eval_metrics.png" alt="Overall results metrics" width="2400px" style="background-color: white;">
 
-<img src="./reports/figures/rmse_per_test_set.png" alt="Partial sets RMSE" width="2400px" style="background-color: white;">
+
+<img src="./reports/figures/rmse_per_test_set.jpg" alt="Partial sets RMSE" width="2400px" style="background-color: white;">
 
 Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest. 
