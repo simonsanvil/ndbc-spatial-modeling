@@ -26,7 +26,7 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 <!-- ![](/reports/figures/available_buoys_per_set.png) -->
 
-| <img src="./reports/figures/ndbc_partial_set2.png" alt="Available Buoys per Set" width="100%" style="background-color: #fafafa;"> |
+| <img src="./reports/figures/ndbc_partial_set2.png" alt="Available Buoys per Set" width="100%" style="background-color: white;"> |
 | :----: |
 |Test subsets evaluated in this area. Inside red circles are the buoys that were not available in the training set of each period mentioned.|
 
@@ -37,6 +37,13 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 ## Results:
 
-The results of the study favour the use of ML algorithms over the use of other methods when paired with a strong feature set that are able to capture the spatial distribution of the data well.
+The results of the study favour the use of ML algorithms over the use of other methods when paired with a strong feature set that are able to capture the spatial distribution of the data well. 
+
+These methods are able to achieve similar error rates to other algorithms sets that test interpolative tasks (sets A,B,C) but shine on more difficult that evaluate on points that would require extrapolation outside the convex hull of the data (sets D,E,F). 
+
 
 ![Results metrics](/reports/figures/eval_metrics.png)
+
+<img src="./reports/figures/rmse_per_test_set.png" alt="Partial sets RMSE" width="2400px" style="background-color: white;">
+
+Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest. 
