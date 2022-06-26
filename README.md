@@ -3,7 +3,9 @@
 
 An empirical study and comparison of Deterministic, Statistical, and ML Algorithms for the Spatial Interpolation of significant wave height values collected by buoy and sea monitoring stations  managed by the United States' [National Data Buoy Center](https://www.ndbc.noaa.gov/) (NDBC) located near costs of the Southern Atlantic regions of the United States, including those on the Gulf of Mexico and parts of the Caribbean.
 
-![ML Spatial Interpolation](/reports/figures/gbm_interpolation_area3.png)
+| ![ML Spatial Interpolation](/reports/figures/gbm_interpolation_area3.png) |
+| :--: |
+| Spatial Interpolation of wave height in the area at a certain timestamp. Black dots indicate the points that have been actually sampled. Red circles were excluded from training data  | 
 
 ## Techniques Studied:
 
@@ -22,7 +24,7 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 |Timeseries of wave height measurements from buoy #42019 |
 
 - The general preprocessing steps were done by defining [a kedro pipeline](/src/spatial_interpolation/pipelines/noaa/data_processing.py) to detect and parse missing values, format the columns, and convert it to a geo-parquet format ([Geopandas](https://geopandas.org/) was used for read/write operations and to work with it as geospatial data).
-- The data was then split into training and test sets. Test sets were also split into several subsets, each of which was used to evaluate the performance of the algorithms based on the specific spatial configuration of the buoys available in each set.
+- The data was then split into training and test sets. The test set itself consisted of several subsets of selected data, each of which was used to evaluate the performance of the algorithms based on the specific spatial configuration of the buoys available in each set.
 
 <!-- ![](/reports/figures/available_buoys_per_set.png) -->
 
@@ -37,9 +39,7 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 ## Results:
 
-The results of the study favour the use of ML algorithms over the use of other methods when paired with a strong feature set that are able to capture the spatial distribution of the data well. 
-
-These methods are able to achieve similar error rates to other algorithms sets that test interpolative tasks (sets A,B,C) but shine on more difficult that evaluate on points that would require extrapolation outside the convex hull of the data (sets D,E,F). 
+The results of the study favour the use of ML algorithms over the use of other methods when paired with a strong feature set that are able to capture the spatial distribution of the data well. While they achieve similar error than other algorithms in sets that test interpolation inside the convex hull of the data (such as those in sets A,B,C) they are much better than the others on points that would require extrapolation outside the convex hull of the data (sets D,E,F). 
 
 
 <img src="./reports/figures/eval_metrics.png" alt="Overall results metrics" width="2400px" style="background-color: white;">
@@ -47,4 +47,4 @@ These methods are able to achieve similar error rates to other algorithms sets t
 
 <img src="./reports/figures/rmse_per_test_set.jpg" alt="Partial sets RMSE" width="2400px" style="background-color: white;">
 
-Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest. 
+Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest (LightGBM is over 3x faster).
