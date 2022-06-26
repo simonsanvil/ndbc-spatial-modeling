@@ -9,8 +9,8 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 ## Techniques Studied:
 
-- **Deterministic methods:** such as linear barycentric interpolation, Inverse Distance Weighting, and Radial Basis Function (RBF) Interpolation.
-- **Statistical methods:** Kriging Interpolation
+- **Deterministic methods:** such as [linear barycentric interpolation](https://dahtah.wordpress.com/2013/03/06/barycentric-interpolation-fast-interpolation-on-arbitrary-grids/#:~:text=Barycentric%20interpolation%20generalises%20linear%20interpolation,now%20it%20as%20algorithm%2021.7.), [Inverse Distance Weighting](https://en.wikipedia.org/wiki/Inverse_distance_weighting) (IDW), and [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function_interpolation) (RBF) Interpolation.
+- **Statistical methods:** [Kriging](https://en.wikipedia.org/wiki/Kriging) Interpolation
  (Gaussian Process Regression).
 - **Machine Learning methods:** [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [Random Forests](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html).
 
