@@ -41,10 +41,14 @@ An empirical study and comparison of Deterministic, Statistical, and ML Algorith
 
 The results of the study favour the use of ML algorithms over the use of other methods when paired with a strong feature set that are able to capture the spatial distribution of the data well. While they achieve similar error than other algorithms in sets that test interpolation inside the convex hull of the data (such as those in sets A,B,C) they are much better than the others on points that would require extrapolation outside the convex hull of the data (sets D,E,F). 
 
+| <img src="./reports/figures/eval_metrics.png" alt="Available Buoys per Set" width="500px" style="background-color: white;"> | <img src="./reports/figures/rmse_per_test_set.jpg" alt="Available Buoys per Set" width="650px" style="background-color: white;"> |
+| :----: | :----: |
+| Overall error metrics  | Avg RMSE per test set  |
 
-<img src="./reports/figures/eval_metrics.png" alt="Overall results metrics" width="2400px" style="background-color: white;">
 
+ | <img src="./reports/figures/interpolation_result_various.png" alt="Results of various interpolation methods" width="2400px" style="background-color: white;"> |
+ | :----: | 
+ | Visual results per evaluated technique |
 
-<img src="./reports/figures/rmse_per_test_set.jpg" alt="Partial sets RMSE" width="2400px" style="background-color: white;">
 
 Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest (LightGBM is over 3x faster).
