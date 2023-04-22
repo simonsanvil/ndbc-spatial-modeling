@@ -1,11 +1,11 @@
-# Spatial Interpolation on NDBC Data
+# Spatial Modeling on NDBC Data
 
 
-An empirical study and comparison of Deterministic, Statistical, and ML Algorithms for the Spatial Interpolation of significant wave height values collected by buoy and sea monitoring stations  managed by the United States' [National Data Buoy Center](https://www.ndbc.noaa.gov/) (NDBC) located near costs of the Southern Atlantic regions of the United States, including those on the Gulf of Mexico and parts of the Caribbean.
+An empirical study and comparison of Deterministic, Statistical, and ML Algorithms for performing Spatial Modeling of significant wave height values collected by buoy and sea monitoring stations managed by the United States' [National Data Buoy Center](https://www.ndbc.noaa.gov/) (NDBC) located near costs of the Southern Atlantic regions of the United States, including those on the Gulf of Mexico and parts of the Caribbean.
 
 | ![ML Spatial Interpolation](/reports/figures/gbm_interpolation_area3.png) |
 | :--: |
-| Spatial Interpolation of wave height in the area at a certain timestamp. Black dots indicate the points that have been actually sampled. Red circles were excluded from training data  | 
+| Temporal-Spatial Interpolation of wave height in the area at a certain timestamp. Black dots indicate the points that have been actually sampled. Red circles are points that were excluded from training data  | 
 
 ## Techniques Studied:
 
@@ -51,4 +51,4 @@ The results of the study favour the use of ML algorithms over the use of other m
  | Visual results per evaluated technique |
 
 
-Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest (LightGBM is over 3x faster).
+Of the two ML methods, Gradient Boost ([LightGBM](https://lightgbm.readthedocs.io/en/latest/)) was the one that turned out to be most successful not only on accuracy but also when comparing the time it takes to run inference in comparison to Random Forest (3x faster).
